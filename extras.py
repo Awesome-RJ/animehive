@@ -16,16 +16,22 @@ def fetch_animepahe_recommendations(anime_session, limit=5):
     recommendation_section = page.find(
         "div", {"class": "anime-recommendation"})
 
-    recommendations = []
-    for i in recommendation_section.find_all("div", {"class": "mb-3"})[:limit]:
-        recommendations.append({
+    recommendations = [
+        {
             "title": i.find("a")["title"],
             "session": i.find("a")["href"].split("/")[-1],
             "type": i.find("strong").text.strip(),
             "season": i.find_all("a")[-1]["title"],
-            "status": i.find("div", {"class": "col-9 px-1"}).text.strip().split("\n")[1],
-            "image": i.find("img")["src"]
-        })
+            "status": i.find("div", {"class": "col-9 px-1"})
+            .text.strip()
+            .split("\n")[1],
+            "image": i.find("img")["src"],
+        }
+        for i in recommendation_section.find_all("div", {"class": "mb-3"})[
+            :limit
+        ]
+    ]
+
     return title, recommendations
 
 
@@ -90,9 +96,8 @@ def fetch_animeout_download(href):
 
     r = requests.get(pre_download_url)
     download_page = BeautifulSoup(r.text, "html.parser")
-    download_url = download_page.find(
+    return download_page.find(
         "script", {"src": None}).contents[0].split('"')[1]
-    return download_url
 
 
 def search_gogoanime(title):

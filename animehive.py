@@ -136,10 +136,18 @@ def button_thread(update, context):
     if query_data.split("=")[0] == "d":
         total_episodes, alias, anime_id = fetch_gogoanime_anime(
             query_data.split("=")[1])
-        markup = []
-        for i in range(0, total_episodes, 10):
-            markup.append([InlineKeyboardButton("Download Episodes {} - {}".format(i + 1, min(
-                i + 10, total_episodes)), callback_data="f={}={}={}".format(alias, anime_id, i))])
+        markup = [
+            [
+                InlineKeyboardButton(
+                    "Download Episodes {} - {}".format(
+                        i + 1, min(i + 10, total_episodes)
+                    ),
+                    callback_data="f={}={}={}".format(alias, anime_id, i),
+                )
+            ]
+            for i in range(0, total_episodes, 10)
+        ]
+
         context.bot.send_message(chat_id=chat_id, text=config["messages"]["download_pagination"].format(
             total_episodes), reply_markup=InlineKeyboardMarkup(markup))
     if query_data.split("=")[0] == "f":
@@ -147,10 +155,8 @@ def button_thread(update, context):
         alias = query_data.split("=")[1]
         episodes = fetch_gogoanime_episodes(
             start, start + 10, alias, query_data.split("=")[2])
-        markup = []
-        for i in episodes:
-            markup.append([InlineKeyboardButton(os.path.basename(i["href"]).replace(
-                "-", " "), callback_data="g={}".format(i["href"]))])
+        markup = [[InlineKeyboardButton(os.path.basename(i["href"]).replace(
+                "-", " "), callback_data="g={}".format(i["href"]))] for i in episodes]
         context.bot.send_message(
             chat_id=chat_id, text=config["messages"]["select_episode"], reply_markup=InlineKeyboardMarkup(markup))
     if query_data.split("=")[0] == "g":
@@ -162,9 +168,11 @@ def button_thread(update, context):
             "href": "https://gogoanime.so" + query_data.split("=")[1],
             "date": datetime.datetime.now()
         })
-        markup = []
-        for i in download_links:
-            markup.append([InlineKeyboardButton(i["name"], url=i["href"])])
+        markup = [
+            [InlineKeyboardButton(i["name"], url=i["href"])]
+            for i in download_links
+        ]
+
         context.bot.send_message(
             chat_id=chat_id, text=anime_title, reply_markup=InlineKeyboardMarkup(markup))
     if query_data.split("=")[0] == "i":
